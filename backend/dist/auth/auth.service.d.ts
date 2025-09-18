@@ -6,5 +6,6 @@ export declare class AuthService {
     private prisma;
     constructor(jwtService: JwtService);
     register(registerDto: RegisterDto): Promise<AuthResponse>;
+    login(username: string, password: string): Promise<AuthResponse>;
     onModuleDestroy(): Promise<void>;
 }

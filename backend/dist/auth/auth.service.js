@@ -61,6 +61,36 @@ let AuthService = class AuthService {
             throw new common_1.InternalServerErrorException('Failed to create user');
         }
     }
+    async login(username, password) {
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: { username },
+            });
+            if (!user) {
+                throw new common_1.UnauthorizedException('Invalid credentials');
+            }
+            const isPasswordValid = await argon2.verify(user.password, password);
+            if (!isPasswordValid) {
+                throw new common_1.UnauthorizedException('Invalid credentials');
+            }
+            const payload = { username: user.username, sub: user.id };
+            const access_token = this.jwtService.sign(payload);
+            return {
+                access_token,
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    nickname: user.nickname,
+                },
+            };
+        }
+        catch (error) {
+            if (error instanceof common_1.UnauthorizedException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException('Failed to authenticate user');
+        }
+    }
     async onModuleDestroy() {
         await this.prisma.$disconnect();
     }

@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
@@ -59,6 +60,49 @@ export class AuthService {
         throw error;
       }
       throw new InternalServerErrorException('Failed to create user');
+    }
+  }
+
+  async login(username: string, password: string): Promise<AuthResponse> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { username },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const isPasswordValid = await argon2.verify(user.password, password);
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const payload: JwtPayload = { username: user.username, sub: user.id };
+      const access_token = this.jwtService.sign(payload);
+
+      return {
+        access_token,
+        user: {
+          id: user.id,
+          username: user.username,
+          nickname: user.nickname,
+        },
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to authenticate user');
+    }
+  }
+
+  async getUserCount(): Promise<number> {
+    try {
+      return await this.prisma.user.count();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to get user count');
     }
   }
 

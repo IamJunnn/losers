@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 
 interface AuthModalProps {
@@ -12,6 +12,11 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSuccess }: AuthModalProps) {
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+
+  // Update mode when initialMode changes
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
   const [formData, setFormData] = useState({
     nickname: '',
     password: '',
@@ -41,29 +46,42 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
 
     try {
       const endpoint = mode === 'signup' ? '/api/auth/register' : '/api/auth/login';
+      const payload = mode === 'signup'
+        ? {
+            username: formData.nickname,
+            nickname: formData.nickname,
+            password: formData.password,
+          }
+        : {
+            username: formData.nickname,
+            password: formData.password,
+          };
+
+      console.log('Sending request to:', `http://localhost:3001${endpoint}`);
+      console.log('Payload:', payload);
+
       const response = await fetch(`http://localhost:3001${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: formData.nickname,
-          password: formData.password,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
+      console.log('Response status:', response.status);
+      console.log('Response data:', data);
 
       if (response.ok) {
         // Set token and user data with 2-week expiration
         const expires = new Date();
         expires.setTime(expires.getTime() + (14 * 24 * 60 * 60 * 1000)); // 2 weeks
 
-        Cookies.set('token', data.token, { expires: 14 });
+        Cookies.set('token', data.access_token, { expires: 14 });
         Cookies.set('user', JSON.stringify(data.user), { expires: 14 });
 
         // Also set in localStorage for immediate access
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('token', data.access_token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
         onAuthSuccess(data.user);
@@ -98,8 +116,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+      <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 w-full max-w-md mx-4 pointer-events-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900">
             {mode === 'signin' ? 'Sign In' : 'Sign Up'}
@@ -127,7 +145,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
                 value={formData.nickname}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 font-medium"
                 placeholder="Enter your nickname"
               />
             </div>
@@ -143,7 +161,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 font-medium"
                 placeholder="Enter your password"
               />
             </div>
@@ -160,7 +178,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 font-medium"
                   placeholder="Confirm your password"
                 />
               </div>
