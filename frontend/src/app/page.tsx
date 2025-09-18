@@ -60,10 +60,11 @@ function VoteButton({ direction, onClick, isActive }: {
 }
 
 // Action Button Component
-function ActionButton({ icon, text, onClick }: {
+function ActionButton({ icon, text, onClick, count }: {
   icon: React.ReactNode,
   text: string,
-  onClick?: () => void
+  onClick?: () => void,
+  count?: number
 }) {
   return (
     <button 
@@ -71,7 +72,7 @@ function ActionButton({ icon, text, onClick }: {
       className="flex items-center space-x-1 px-2 py-1.5 rounded-md text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-all duration-200"
     >
       {icon}
-      <span>{text}</span>
+      <span>{count !== undefined ? `${count} ${text}` : text}</span>
     </button>
   );
 }
@@ -116,6 +117,7 @@ export default function HomePage() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [votedPosts, setVotedPosts] = useState<Record<string, 'up' | 'down'>>({});
+  const [theme, setTheme] = useState('light');
 
   const categories = [
     { key: 'GENERAL', name: 'General', description: 'General failures and setbacks' },
@@ -143,6 +145,10 @@ export default function HomePage() {
     if (token && userData) {
       setUser(JSON.parse(userData));
     }
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+    document.body.className = savedTheme;
   }, []);
 
   useEffect(() => {
@@ -317,6 +323,13 @@ export default function HomePage() {
     }
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.body.className = newTheme;
+  };
+
   const formatDate = (dateString: string) => {
     const now = new Date();
     const postDate = new Date(dateString);
@@ -377,6 +390,21 @@ export default function HomePage() {
             </div>
             
             <div className="flex items-center space-x-3">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200"
+                aria-label="Toggle theme"
+              >
+                {theme === 'light' ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9 9 0 008.354-5.646z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h1M3 12H2m8.042-8.485L11.5 4.5m7.458 16.485L12.5 19.5M4.222 4.222L5.636 5.636m12.128 12.128l1.414 1.414M1.5 12h2.25M20.25 12H22M12 1.5V3M12 21v-1.5M4.222 19.778L5.636 18.364m12.128-12.128l1.414-1.414M18.75 12H22M1.5 12h2.25M12 1.5V3M12 21v-1.5" />
+                  </svg>
+                )}
+              </button>
               {user ? (
                 <div className="flex items-center space-x-3">
                   <button
