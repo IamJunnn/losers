@@ -140,7 +140,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
                 value={formData.nickname}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 font-medium"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent text-gray-900 font-medium"
                 placeholder="Enter your nickname"
               />
             </div>
@@ -156,7 +156,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 font-medium"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent text-gray-900 font-medium"
                 placeholder="Enter your password"
               />
             </div>
@@ -173,14 +173,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 font-medium"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent text-gray-900 font-medium"
                   placeholder="Confirm your password"
                 />
               </div>
             )}
 
             {error && (
-              <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
+              <div className="text-[#EF233C] text-sm bg-red-50 p-2 rounded">
                 {error}
               </div>
             )}
@@ -188,10 +188,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full text-white py-2 px-4 rounded-md font-medium transition-colors disabled:opacity-50"
-              style={{backgroundColor: '#645DD7'}}
-              onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = '#5951C7')}
-              onMouseLeave={(e) => !isLoading && (e.target.style.backgroundColor = '#645DD7')}
+              className="w-full text-black py-2 px-4 rounded-md font-medium transition-colors disabled:opacity-50"
+              style={{backgroundColor: '#FF9E3D'}}
+              onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = '#FF8C1A')}
+              onMouseLeave={(e) => !isLoading && (e.target.style.backgroundColor = '#FF9E3D')}
             >
               {isLoading ? 'Please wait...' : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
             </button>
@@ -203,7 +203,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
             {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
             <button
               onClick={switchMode}
-              className="text-purple-600 hover:text-purple-800 font-medium"
+              className="text-[#FF9E3D] hover:text-[#FF8C1A] font-medium"
             >
               {mode === 'signin' ? 'Sign Up' : 'Sign In'}
             </button>

@@ -170,7 +170,7 @@ export default function CommentsModal({ isOpen, onClose, post, onCommentAdded }:
             <div className="space-y-6">
               {comments.map((comment) => (
                 <div key={comment.id} className="flex space-x-3">
-                  <div className="w-8 h-8 bg-[#645DD7] rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 bg-[#FF9E3D] rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-medium text-sm">
                       {comment.author.username[0].toUpperCase()}
                     </span>
@@ -196,7 +196,7 @@ export default function CommentsModal({ isOpen, onClose, post, onCommentAdded }:
           <div className="p-6 border-t border-gray-200">
             <form onSubmit={handleSubmitComment} className="space-y-4">
               <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-[#645DD7] rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-[#FF9E3D] rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-medium text-sm">
                     {user.username[0].toUpperCase()}
                   </span>
@@ -206,7 +206,7 @@ export default function CommentsModal({ isOpen, onClose, post, onCommentAdded }:
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="What are your thoughts?"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 text-gray-900 font-medium"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent transition-all duration-200 text-gray-900 font-medium"
                     rows={3}
                     maxLength={500}
                   />
@@ -217,7 +217,7 @@ export default function CommentsModal({ isOpen, onClose, post, onCommentAdded }:
                     <button
                       type="submit"
                       disabled={!newComment.trim() || isSubmitting}
-                      className="bg-[#645DD7] hover:bg-[#5951C7] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 disabled:transform-none"
+                      className="bg-[#FF9E3D] hover:bg-[#FF8C1A] disabled:bg-gray-300 disabled:cursor-not-allowed text-black px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 disabled:transform-none"
                     >
                       {isSubmitting ? 'Posting...' : 'Comment'}
                     </button>
@@ -231,7 +231,7 @@ export default function CommentsModal({ isOpen, onClose, post, onCommentAdded }:
             <p className="text-gray-500 mb-4">You need to be logged in to comment</p>
             <button
               onClick={onClose}
-              className="text-[#645DD7] hover:text-[#5951C7] font-medium text-sm transition-colors duration-200"
+              className="text-[#FF9E3D] hover:text-[#FF8C1A] font-medium text-sm transition-colors duration-200"
             >
               Close and log in
             </button>

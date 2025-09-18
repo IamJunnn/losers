@@ -3,10 +3,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary: #645DD7;
-  --primary-hover: #5951C7;
-  --primary-active: #4A43B7;
-  --font-primary: #0F0F0F;
+  --primary: #FFAC5E;
+  --primary-hover: #FF8C1A;
+  --primary-active: #E6862F;
+  --learned-color: #44BBA4;
+  --delete-color: #EF233C;
+  --delete-hover: #D91E36;
+  --font-primary: #222222;
   --font-secondary: #1E1F1F;
   --font-placeholder: #494A4A;
 }
@@ -35,9 +38,12 @@ body {
 .dark {
   --background: #1a1a1a;
   --foreground: #d1d5db;
-  --primary: #7b75e5;
-  --primary-hover: #6a64d9;
-  --primary-active: #5a53c9;
+  --primary: #FF9E3D;
+  --primary-hover: #FF8C1A;
+  --primary-active: #E6862F;
+  --learned-color: #4A90C2;
+  --delete-color: #EF233C;
+  --delete-hover: #D91E36;
   --font-primary: #ffffff;
   --font-secondary: #a0a0a0;
   --font-placeholder: #5a5a5a;

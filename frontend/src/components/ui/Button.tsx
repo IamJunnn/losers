@@ -24,10 +24,10 @@ export function Button({
   const baseClasses = "font-medium rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-[#645DD7] text-white hover:bg-[#5951C7] focus:ring-[#645DD7] active:bg-[#4A43B7] shadow-sm hover:shadow-md",
+    primary: "bg-[#FF9E3D] text-black hover:bg-[#FF8C1A] focus:ring-[#FF9E3D] active:bg-[#E6862F] shadow-sm hover:shadow-md",
     secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500 active:bg-gray-100",
     ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500 active:bg-gray-200",
-    danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800"
+    danger: "bg-[#EF233C] text-white hover:bg-[#D91E36] focus:ring-[#EF233C] active:bg-[#C01E33]"
   };
   
   const sizes = {
@@ -79,9 +79,9 @@ export function IconButton({
   const baseClasses = "rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    ghost: "text-gray-500 hover:text-[#645DD7] hover:bg-gray-100 focus:ring-gray-500",
-    primary: "text-[#645DD7] hover:text-[#5951C7] hover:bg-purple-50 focus:ring-[#645DD7]",
-    danger: "text-red-500 hover:text-red-700 hover:bg-red-50 focus:ring-red-500"
+    ghost: "text-gray-500 hover:text-[#FF9E3D] hover:bg-gray-100 focus:ring-gray-500",
+    primary: "text-[#FF9E3D] hover:text-[#FF8C1A] hover:bg-orange-50 focus:ring-[#FF9E3D]",
+    danger: "text-[#EF233C] hover:text-[#D91E36] hover:bg-red-50 focus:ring-[#EF233C]"
   };
   
   const sizes = {
@@ -125,7 +125,7 @@ export function Input({
   required = false
 }: InputProps) {
   const baseClasses = "w-full px-3 py-2 border rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
-  const errorClasses = error ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-300 hover:border-gray-400 focus:border-[#645DD7] focus:ring-[#645DD7]";
+  const errorClasses = error ? "border-[#EF233C] focus:border-[#EF233C] focus:ring-[#EF233C]" : "border-gray-300 hover:border-gray-400 focus:border-[#FF9E3D] focus:ring-[#FF9E3D]";
   
   const classes = `${baseClasses} ${errorClasses} ${className}`;
   
@@ -174,7 +174,7 @@ export function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   
   return (
     <svg 
-      className={`animate-spin ${sizes[size]} text-[#645DD7]`} 
+      className={`animate-spin ${sizes[size]} text-[#FF9E3D]`} 
       xmlns="http://www.w3.org/2000/svg" 
       fill="none" 
       viewBox="0 0 24 24"

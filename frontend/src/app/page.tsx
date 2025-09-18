@@ -45,9 +45,9 @@ function VoteButton({ direction, onClick, isActive }: {
   const buttonClass = `p-1.5 rounded-md transition-all duration-200 hover:scale-110 ${
     isActive 
       ? direction === 'up' 
-        ? 'text-[#645DD7] bg-purple-50' 
+        ? 'text-[#FF9E3D] bg-orange-50'
         : 'text-blue-500 bg-blue-50'
-      : 'text-gray-400 hover:text-[#645DD7] hover:bg-gray-50'
+      : 'text-gray-400 hover:text-[#FF9E3D] hover:bg-gray-50'
   }`;
 
   return (
@@ -88,11 +88,11 @@ function CategoryButton({ category, isActive, onClick }: {
       onClick={onClick}
       className={`w-full text-left px-3 py-3 rounded-lg text-sm transition-all duration-200 group ${
         isActive
-          ? 'bg-gradient-to-r from-[#645DD7]/10 to-[#645DD7]/5 border-r-3 border-[#645DD7] font-medium shadow-sm'
+          ? 'bg-gradient-to-r from-[#FF9E3D]/10 to-[#FF9E3D]/5 border-r-3 border-[#FF9E3D] font-medium shadow-sm'
           : 'hover:bg-gray-50 text-gray-700'
       }`}
     >
-      <div className={`font-medium ${isActive ? 'text-[#645DD7]' : 'text-gray-900 group-hover:text-[#645DD7]'} transition-colors duration-200`}>
+      <div className={`font-medium ${isActive ? 'text-[#FF9E3D]' : 'text-gray-900 group-hover:text-[#FF9E3D]'} transition-colors duration-200`}>
         l/{category.name.toLowerCase()}
       </div>
       <div className="text-xs text-gray-500 mt-0.5 group-hover:text-gray-600 transition-colors duration-200">
@@ -382,7 +382,7 @@ export default function HomePage() {
             <div className="flex items-center space-x-4">
               <Link href="/" className="flex items-center space-x-2 group">
                 <img
-                  src="/logo_main.png"
+                  src="/2.png"
                   alt="LosersSpace Logo"
                   className="h-12 w-auto transition-opacity duration-200 group-hover:opacity-80"
                 />
@@ -392,7 +392,11 @@ export default function HomePage() {
             <div className="flex items-center space-x-3">
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200"
+                className={`p-2 rounded-full transition-all duration-200 ${
+                  theme === 'dark'
+                    ? 'text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20 hover:text-yellow-300 border border-yellow-400/20'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                }`}
                 aria-label="Toggle theme"
               >
                 {theme === 'light' ? (
@@ -400,8 +404,8 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9 9 0 008.354-5.646z" />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h1M3 12H2m8.042-8.485L11.5 4.5m7.458 16.485L12.5 19.5M4.222 4.222L5.636 5.636m12.128 12.128l1.414 1.414M1.5 12h2.25M20.25 12H22M12 1.5V3M12 21v-1.5M4.222 19.778L5.636 18.364m12.128-12.128l1.414-1.414M18.75 12H22M1.5 12h2.25M12 1.5V3M12 21v-1.5" />
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
                   </svg>
                 )}
               </button>
@@ -409,7 +413,7 @@ export default function HomePage() {
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={handleCreatePost}
-                    className="bg-[#645DD7] hover:bg-[#5951C7] text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                    className="bg-[#FF9E3D] hover:bg-[#FF8C1A] text-black px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                   >
                     Share Failure
                   </button>
@@ -433,7 +437,7 @@ export default function HomePage() {
                   </button>
                   <button
                     onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}
-                    className="bg-[#645DD7] hover:bg-[#5951C7] text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                    className="bg-[#FF9E3D] hover:bg-[#FF8C1A] text-black px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                   >
                     Sign Up
                   </button>
@@ -488,14 +492,14 @@ export default function HomePage() {
                 {user ? (
                   <button
                     onClick={handleCreatePost}
-                    className="inline-block bg-[#645DD7] hover:bg-[#5951C7] text-white px-6 py-3 rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                    className="inline-block bg-[#FF9E3D] hover:bg-[#FF8C1A] text-black px-6 py-3 rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                   >
                     Share Your Failure
                   </button>
                 ) : (
                   <button
                     onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}
-                    className="inline-block bg-[#645DD7] hover:bg-[#5951C7] text-white px-6 py-3 rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                    className="inline-block bg-[#FF9E3D] hover:bg-[#FF8C1A] text-black px-6 py-3 rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                   >
                     Join Community
                   </button>
@@ -527,7 +531,7 @@ export default function HomePage() {
                       <div className="flex-1 min-w-0">
                         {/* Post Meta */}
                         <div className="flex items-center text-xs text-gray-500 mb-3">
-                          <span className="font-medium text-[#645DD7]">l/{currentCategoryInfo.name.toLowerCase()}</span>
+                          <span className="font-medium text-[#FF9E3D]">l/{currentCategoryInfo.name.toLowerCase()}</span>
                           <span className="mx-2">•</span>
                           <span>Posted by </span>
                           <span className="font-medium text-gray-700 ml-1">u/{post.author.username}</span>
@@ -535,9 +539,9 @@ export default function HomePage() {
                           <span>{formatDate(post.createdAt)}</span>
                         </div>
 
-                        <Link href={`/posts/${post.id}`} className="block cursor-pointer">
+                        <Link href={`/posts/${post.id}?category=${currentCategory}`} className="block cursor-pointer">
                           {/* Post Title */}
-                          <h2 className="text-lg font-semibold text-gray-900 mb-4 hover:text-[#645DD7] transition-colors duration-200 line-clamp-2">
+                          <h2 className="text-lg font-semibold text-gray-900 mb-4 hover:text-[#FF9E3D] transition-colors duration-200 line-clamp-2">
                             {post.title}
                           </h2>
 
@@ -549,13 +553,13 @@ export default function HomePage() {
                               <div className="space-y-3">
                                 {post.whatFailed && (
                                   <p className="line-clamp-2">
-                                    <span className="font-semibold text-[#645DD7]">Failed:</span> 
+                                    <span className="font-semibold text-[#FF9E3D]">Failed:</span> 
                                     <span className="ml-1">{post.whatFailed.slice(0, 100)}...</span>
                                   </p>
                                 )}
                                 {post.lessonLearned && (
                                   <p className="line-clamp-2">
-                                    <span className="font-semibold text-green-600">Learned:</span> 
+                                    <span className="font-semibold text-[#44BBA4]">Learned:</span> 
                                     <span className="ml-1">{post.lessonLearned.slice(0, 100)}...</span>
                                   </p>
                                 )}
@@ -583,7 +587,7 @@ export default function HomePage() {
                           {user && user.username === post.author.username && (
                             <button
                               onClick={() => handleDeletePost(post.id)}
-                              className="flex items-center space-x-1 px-2 py-1.5 rounded-md text-xs text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
+                              className="flex items-center space-x-1 px-2 py-1.5 rounded-md text-xs text-[#EF233C] hover:bg-red-50 hover:text-[#D91E36] transition-all duration-200"
                             >
                               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clipRule="evenodd" />
@@ -612,7 +616,7 @@ export default function HomePage() {
                 What should I place here? Tell me your thoughts to{' '}
                 <a
                   href="mailto:lovejsson@gmail.com"
-                  className="text-[#645DD7] hover:text-[#5951C7] font-medium underline transition-colors duration-200"
+                  className="text-[#FF9E3D] hover:text-[#FF8C1A] font-medium underline transition-colors duration-200"
                 >
                   lovejsson@gmail.com
                 </a>
@@ -621,7 +625,7 @@ export default function HomePage() {
             {user && (
               <button
                 onClick={handleCreatePost}
-                className="w-full bg-[#645DD7] hover:bg-[#5951C7] text-white text-center py-3 rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                className="w-full bg-[#FF9E3D] hover:bg-[#FF8C1A] text-black text-center py-3 rounded-full font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
               >
                 Create Post
               </button>

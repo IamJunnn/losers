@@ -157,7 +157,7 @@ export default function CreatePostModal({
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent transition-all duration-200 hover:border-gray-400 text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
             >
               {categories.map((category) => (
                 <option key={category.key} value={category.key}>
@@ -180,7 +180,7 @@ export default function CreatePostModal({
               onChange={handleInputChange}
               required
               maxLength={150}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent transition-all duration-200 hover:border-gray-400 text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
               placeholder="Give your failure a descriptive title..."
             />
             <div className="text-right text-xs text-gray-500 mt-1">
@@ -201,7 +201,7 @@ export default function CreatePostModal({
                 onChange={handleInputChange}
                 required
                 rows={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
                 placeholder="Share your experience, what went wrong, and what you learned..."
               />
             </div>
@@ -210,7 +210,7 @@ export default function CreatePostModal({
               {/* What Failed */}
               <div>
                 <label htmlFor="whatFailed" className="block text-sm font-medium text-gray-700 mb-2">
-                  <span className="text-[#645DD7] font-semibold">What failed?</span>
+                  <span className="text-[#FF9E3D] font-semibold">What failed?</span>
                 </label>
                 <textarea
                   id="whatFailed"
@@ -220,7 +220,7 @@ export default function CreatePostModal({
                   required
                   maxLength={500}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
                   placeholder="Describe what went wrong, what didn't work, or what you attempted..."
                 />
                 <div className="text-right text-xs text-gray-500 mt-1">
@@ -231,7 +231,7 @@ export default function CreatePostModal({
               {/* Lesson Learned */}
               <div>
                 <label htmlFor="lessonLearned" className="block text-sm font-medium text-gray-700 mb-2">
-                  <span className="text-green-600 font-semibold">What did you learn?</span>
+                  <span className="text-[#44BBA4] font-semibold">What did you learn?</span>
                 </label>
                 <textarea
                   id="lessonLearned"
@@ -241,7 +241,7 @@ export default function CreatePostModal({
                   required
                   maxLength={500}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF9E3D] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
                   placeholder="What insights, lessons, or advice would you share with others?"
                 />
                 <div className="text-right text-xs text-gray-500 mt-1">
@@ -253,7 +253,7 @@ export default function CreatePostModal({
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+            <div className="bg-red-50 border border-red-200 text-[#EF233C] px-4 py-3 rounded-xl text-sm">
               {error}
             </div>
           )}
@@ -270,11 +270,11 @@ export default function CreatePostModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-6 py-3 bg-[#645DD7] hover:bg-[#5951C7] text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 disabled:transform-none flex items-center"
+              className="px-6 py-3 bg-[#FF9E3D] hover:bg-[#FF8C1A] text-black rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 disabled:transform-none flex items-center"
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
