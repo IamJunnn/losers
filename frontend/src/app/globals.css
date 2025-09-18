@@ -240,8 +240,8 @@ input[type="email"]:focus,
 input[type="password"]:focus,
 textarea:focus {
   outline: none;
-  border-color: #645DD7;
-  box-shadow: 0 0 0 3px rgba(100, 93, 215, 0.1);
+  border-color: #FF9E3D;
+  box-shadow: 0 0 0 3px rgba(255, 158, 61, 0.1);
 }
 
 /* Custom utilities */
