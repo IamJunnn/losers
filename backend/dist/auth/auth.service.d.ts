@@ -7,5 +7,6 @@ export declare class AuthService {
     constructor(jwtService: JwtService);
     register(registerDto: RegisterDto): Promise<AuthResponse>;
     login(username: string, password: string): Promise<AuthResponse>;
+    getUserCount(): Promise<number>;
     onModuleDestroy(): Promise<void>;
 }

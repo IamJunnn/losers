@@ -33,9 +33,8 @@ interface User {
 }
 
 // Vote Button Component
-function VoteButton({ direction, count, onClick, isActive }: { 
+function VoteButton({ direction, onClick, isActive }: { 
   direction: 'up' | 'down', 
-  count?: number, 
   onClick: () => void,
   isActive?: boolean 
 }) {
@@ -61,11 +60,10 @@ function VoteButton({ direction, count, onClick, isActive }: {
 }
 
 // Action Button Component
-function ActionButton({ icon, text, onClick, count }: {
+function ActionButton({ icon, text, onClick }: {
   icon: React.ReactNode,
   text: string,
-  onClick?: () => void,
-  count?: number
+  onClick?: () => void
 }) {
   return (
     <button 
@@ -73,7 +71,7 @@ function ActionButton({ icon, text, onClick, count }: {
       className="flex items-center space-x-1 px-2 py-1.5 rounded-md text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-all duration-200"
     >
       {icon}
-      <span>{count !== undefined ? `${count} ${text}` : text}</span>
+      <span>{text}</span>
     </button>
   );
 }
@@ -94,7 +92,7 @@ function CategoryButton({ category, isActive, onClick }: {
       }`}
     >
       <div className={`font-medium ${isActive ? 'text-[#645DD7]' : 'text-gray-900 group-hover:text-[#645DD7]'} transition-colors duration-200`}>
-        f/{category.name.toLowerCase()}
+        l/{category.name.toLowerCase()}
       </div>
       <div className="text-xs text-gray-500 mt-0.5 group-hover:text-gray-600 transition-colors duration-200">
         {category.description}
@@ -111,7 +109,7 @@ export default function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  const [userCount, setUserCount] = useState<number>(0);
+  
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
@@ -149,17 +147,38 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchPosts();
-    fetchUserCount();
   }, [currentCategory]);
 
   const fetchPosts = async () => {
     try {
       setIsLoading(true);
       const url = `/api/posts?category=${currentCategory}`;
-      const response = await fetch(`http://localhost:3001${url}`);
+      const token = localStorage.getItem('token') || Cookies.get('token');
+
+      const headers: any = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`http://localhost:3001${url}`, {
+        headers,
+      });
+
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
+
+        // Set initial vote state from server data
+        const initialVotes: Record<string, 'up' | 'down'> = {};
+        data.forEach((post: any) => {
+          if (post.userVote !== undefined) {
+            initialVotes[post.id] = post.userVote ? 'up' : 'down';
+          }
+        });
+        setVotedPosts(initialVotes);
       }
     } catch (error) {
       console.error('Failed to fetch posts:', error);
@@ -168,17 +187,7 @@ export default function HomePage() {
     }
   };
 
-  const fetchUserCount = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/auth/user-count');
-      if (response.ok) {
-        const data = await response.json();
-        setUserCount(data.count);
-      }
-    } catch (error) {
-      console.error('Failed to fetch user count:', error);
-    }
-  };
+  
 
   const handleCategoryChange = (categoryKey: string) => {
     router.push(`/?category=${categoryKey}`);
@@ -195,7 +204,7 @@ export default function HomePage() {
 
   const handleAuthSuccess = (userData: User) => {
     setUser(userData);
-    fetchUserCount(); // Refresh user count when someone signs up
+    fetchPosts(); // Refresh posts to get user's vote status
   };
 
   const handlePostCreated = () => {
@@ -211,20 +220,47 @@ export default function HomePage() {
     }
   };
 
-  const handleVote = (postId: string, direction: 'up' | 'down') => {
+  const handleVote = async (postId: string, direction: 'up' | 'down') => {
     if (!user) {
       setShowAuthModal(true);
       return;
     }
 
-    // Toggle vote logic
-    const currentVote = votedPosts[postId];
-    const newVote = currentVote === direction ? undefined : direction;
+    try {
+      const token = localStorage.getItem('token') || Cookies.get('token');
+      const isUpvote = direction === 'up';
 
-    setVotedPosts(prev => ({
-      ...prev,
-      [postId]: newVote as 'up' | 'down'
-    }));
+      const response = await fetch(`http://localhost:3001/api/posts/${postId}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isUpvote }),
+      });
+
+      if (response.ok) {
+        const voteData = await response.json();
+
+        // Update the post's vote count in the posts state
+        setPosts(prev => prev.map(post =>
+          post.id === postId
+            ? { ...post, _count: { ...post._count, votes: voteData.netVotes } }
+            : post
+        ));
+
+        // Update local vote tracking
+        setVotedPosts(prev => ({
+          ...prev,
+          [postId]: voteData.userVote
+        }));
+      } else {
+        const errorData = await response.text();
+        console.error('Failed to vote on post. Status:', response.status, 'Error:', errorData);
+      }
+    } catch (error) {
+      console.error('Error voting on post:', error);
+    }
   };
 
   const handleDeletePost = async (postId: string) => {
@@ -262,6 +298,23 @@ export default function HomePage() {
   const handleOpenComments = (post: Post) => {
     setSelectedPost(post);
     setShowCommentsModal(true);
+  };
+
+  const handleCommentAdded = () => {
+    if (selectedPost) {
+      // Update the comment count for the selected post
+      setPosts(prev => prev.map(post =>
+        post.id === selectedPost.id
+          ? { ...post, _count: { ...post._count, comments: post._count.comments + 1 } }
+          : post
+      ));
+
+      // Update the selectedPost as well
+      setSelectedPost(prev => prev ? {
+        ...prev,
+        _count: { ...prev._count, comments: prev._count.comments + 1 }
+      } : null);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -384,11 +437,9 @@ export default function HomePage() {
         <div className="flex-1 max-w-4xl">
           {/* Category Header */}
           <div className="bg-white border-b border-gray-200 p-6 shadow-sm">
-            <h1 className="text-2xl font-bold text-gray-900">f/{currentCategoryInfo.name.toLowerCase()}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">l/{currentCategoryInfo.name.toLowerCase()}</h1>
             <p className="text-gray-600 text-sm mt-1">{currentCategoryInfo.description}</p>
             <div className="flex items-center mt-4 space-x-4 text-sm text-gray-500">
-              <span className="font-medium">Sort by: Hot</span>
-              <span>•</span>
               <span>{posts.length} failures</span>
             </div>
           </div>
@@ -404,7 +455,7 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <div className="text-gray-700 text-lg mb-2 font-medium">No failures in f/{currentCategoryInfo.name.toLowerCase()} yet</div>
+                <div className="text-gray-700 text-lg mb-2 font-medium">No failures in l/{currentCategoryInfo.name.toLowerCase()} yet</div>
                 <p className="text-gray-500 mb-8 max-w-md mx-auto">Be the first to share a failure in this category and help others learn from your experience!</p>
                 {user ? (
                   <button
@@ -448,7 +499,7 @@ export default function HomePage() {
                       <div className="flex-1 min-w-0">
                         {/* Post Meta */}
                         <div className="flex items-center text-xs text-gray-500 mb-3">
-                          <span className="font-medium text-[#645DD7]">f/{currentCategoryInfo.name.toLowerCase()}</span>
+                          <span className="font-medium text-[#645DD7]">l/{currentCategoryInfo.name.toLowerCase()}</span>
                           <span className="mx-2">•</span>
                           <span>Posted by </span>
                           <span className="font-medium text-gray-700 ml-1">u/{post.author.username}</span>
@@ -456,32 +507,34 @@ export default function HomePage() {
                           <span>{formatDate(post.createdAt)}</span>
                         </div>
 
-                        {/* Post Title */}
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4 hover:text-[#645DD7] cursor-pointer transition-colors duration-200 line-clamp-2">
-                          {post.title}
-                        </h2>
+                        <Link href={`/posts/${post.id}`} className="block cursor-pointer">
+                          {/* Post Title */}
+                          <h2 className="text-lg font-semibold text-gray-900 mb-4 hover:text-[#645DD7] transition-colors duration-200 line-clamp-2">
+                            {post.title}
+                          </h2>
 
-                        {/* Post Content Preview */}
-                        <div className="text-sm text-gray-700 mb-4 leading-relaxed">
-                          {post.category === 'GENERAL' ? (
-                            <p className="line-clamp-3">{post.contents?.slice(0, 200)}...</p>
-                          ) : (
-                            <div className="space-y-3">
-                              {post.whatFailed && (
-                                <p className="line-clamp-2">
-                                  <span className="font-semibold text-[#645DD7]">Failed:</span> 
-                                  <span className="ml-1">{post.whatFailed.slice(0, 100)}...</span>
-                                </p>
-                              )}
-                              {post.lessonLearned && (
-                                <p className="line-clamp-2">
-                                  <span className="font-semibold text-green-600">Learned:</span> 
-                                  <span className="ml-1">{post.lessonLearned.slice(0, 100)}...</span>
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                          {/* Post Content Preview */}
+                          <div className="text-sm text-gray-700 mb-4 leading-relaxed">
+                            {post.category === 'GENERAL' ? (
+                              <p className="line-clamp-3">{post.contents?.slice(0, 200)}...</p>
+                            ) : (
+                              <div className="space-y-3">
+                                {post.whatFailed && (
+                                  <p className="line-clamp-2">
+                                    <span className="font-semibold text-[#645DD7]">Failed:</span> 
+                                    <span className="ml-1">{post.whatFailed.slice(0, 100)}...</span>
+                                  </p>
+                                )}
+                                {post.lessonLearned && (
+                                  <p className="line-clamp-2">
+                                    <span className="font-semibold text-green-600">Learned:</span> 
+                                    <span className="ml-1">{post.lessonLearned.slice(0, 100)}...</span>
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </Link>
 
                         {/* Post Actions */}
                         <div className="flex items-center justify-between">
@@ -524,7 +577,7 @@ export default function HomePage() {
         {/* Right Sidebar */}
         <div className="w-80 p-6">
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="font-semibold text-gray-900 mb-3">About f/{currentCategoryInfo.name.toLowerCase()}</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">About l/{currentCategoryInfo.name.toLowerCase()}</h3>
             <p className="text-sm text-gray-600 mb-6 leading-relaxed">{currentCategoryInfo.description}</p>
             <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
               <p className="text-sm text-gray-700 leading-relaxed">
@@ -574,6 +627,7 @@ export default function HomePage() {
             setSelectedPost(null);
           }}
           post={selectedPost}
+          onCommentAdded={handleCommentAdded}
         />
       )}
     </div>

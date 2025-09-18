@@ -57,9 +57,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
             password: formData.password,
           };
 
-      console.log('Sending request to:', `http://localhost:3001${endpoint}`);
-      console.log('Payload:', payload);
-
       const response = await fetch(`http://localhost:3001${endpoint}`, {
         method: 'POST',
         headers: {
@@ -69,8 +66,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
       });
 
       const data = await response.json();
-      console.log('Response status:', response.status);
-      console.log('Response data:', data);
 
       if (response.ok) {
         // Set token and user data with 2-week expiration

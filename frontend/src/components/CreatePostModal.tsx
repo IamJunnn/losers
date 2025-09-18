@@ -149,7 +149,7 @@ export default function CreatePostModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[calc(90vh-140px)] overflow-y-auto">
           {/* Category Selection */}
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="category" className="block text-sm font-medium text-[var(--font-primary)] mb-2">
               Category
             </label>
             <select
@@ -157,7 +157,7 @@ export default function CreatePostModal({
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 text-gray-900 font-medium"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
             >
               {categories.map((category) => (
                 <option key={category.key} value={category.key}>
@@ -169,7 +169,7 @@ export default function CreatePostModal({
 
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-sm font-medium text-[var(--font-primary)] mb-2">
               Title
             </label>
             <input
@@ -179,15 +179,19 @@ export default function CreatePostModal({
               value={formData.title}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 text-gray-900 font-medium"
+              maxLength={150}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
               placeholder="Give your failure a descriptive title..."
             />
+            <div className="text-right text-xs text-gray-500 mt-1">
+              {formData.title.length} / 150
+            </div>
           </div>
 
           {/* Conditional Fields Based on Category */}
           {formData.category === 'GENERAL' ? (
             <div>
-              <label htmlFor="contents" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="contents" className="block text-sm font-medium text-[var(--font-primary)] mb-2">
                 Tell us about your failure
               </label>
               <textarea
@@ -197,7 +201,7 @@ export default function CreatePostModal({
                 onChange={handleInputChange}
                 required
                 rows={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-gray-900 font-medium"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
                 placeholder="Share your experience, what went wrong, and what you learned..."
               />
             </div>
@@ -214,10 +218,14 @@ export default function CreatePostModal({
                   value={formData.whatFailed}
                   onChange={handleInputChange}
                   required
+                  maxLength={500}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-gray-900 font-medium"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
                   placeholder="Describe what went wrong, what didn't work, or what you attempted..."
                 />
+                <div className="text-right text-xs text-gray-500 mt-1">
+                  {formData.whatFailed.length} / 500
+                </div>
               </div>
 
               {/* Lesson Learned */}
@@ -231,10 +239,14 @@ export default function CreatePostModal({
                   value={formData.lessonLearned}
                   onChange={handleInputChange}
                   required
+                  maxLength={500}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-gray-900 font-medium"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none text-[var(--font-secondary)] font-medium placeholder:text-[var(--font-placeholder)]"
                   placeholder="What insights, lessons, or advice would you share with others?"
                 />
+                <div className="text-right text-xs text-gray-500 mt-1">
+                  {formData.lessonLearned.length} / 500
+                </div>
               </div>
             </div>
           )}

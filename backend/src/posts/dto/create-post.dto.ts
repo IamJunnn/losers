@@ -11,7 +11,7 @@ export enum Category {
 export class CreatePostDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(200)
+  @MaxLength(150)
   title: string;
 
   @IsEnum(Category)
@@ -19,12 +19,12 @@ export class CreatePostDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(2000)
+  @MaxLength(500)
   whatFailed?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(2000)
+  @MaxLength(500)
   lessonLearned?: string;
 
   @IsOptional()

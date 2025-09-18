@@ -91,6 +91,14 @@ let AuthService = class AuthService {
             throw new common_1.InternalServerErrorException('Failed to authenticate user');
         }
     }
+    async getUserCount() {
+        try {
+            return await this.prisma.user.count();
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException('Failed to get user count');
+        }
+    }
     async onModuleDestroy() {
         await this.prisma.$disconnect();
     }

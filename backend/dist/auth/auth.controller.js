@@ -30,6 +30,10 @@ let AuthController = class AuthController {
         const { username, password } = loginDto;
         return this.authService.login(username, password);
     }
+    async getUserCount() {
+        const count = await this.authService.getUserCount();
+        return { count };
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -48,6 +52,13 @@ __decorate([
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.Get)('user-count'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getUserCount", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     (0, common_1.UseFilters)(http_exception_filter_1.HttpExceptionFilter),

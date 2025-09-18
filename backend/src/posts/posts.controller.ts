@@ -17,6 +17,7 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { VotePostDto } from './dto/vote-post.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
 
@@ -37,8 +38,15 @@ export class PostsController {
   }
 
   @Get()
-  async getPosts(@Query('category') category?: string) {
-    return this.postsService.getPosts(category);
+  async getPosts(@Query('category') category?: string, @Request() req?: any) {
+    const userId = req?.user?.userId; // Will be undefined if not authenticated
+    return this.postsService.getPosts(category, userId);
+  }
+
+  @Get(':id')
+  async getPostById(@Param('id') postId: string, @Request() req?: any) {
+    const userId = req?.user?.userId; // Will be undefined if not authenticated
+    return this.postsService.getPostById(postId, userId);
   }
 
   @Delete(':id')
@@ -63,5 +71,17 @@ export class PostsController {
     @Request() req: any,
   ) {
     return this.postsService.createComment(postId, createCommentDto, req.user.userId);
+  }
+
+  @Post(':id/vote')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async votePost(
+    @Param('id') postId: string,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    voteData: VotePostDto,
+    @Request() req: any,
+  ) {
+    return this.postsService.votePost(postId, req.user.userId, voteData.isUpvote);
   }
 }

@@ -6,6 +6,9 @@
   --primary: #645DD7;
   --primary-hover: #5951C7;
   --primary-active: #4A43B7;
+  --font-primary: #0F0F0F;
+  --font-secondary: #1E1F1F;
+  --font-placeholder: #494A4A;
 }
 
 @theme inline {

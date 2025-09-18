@@ -20,15 +20,17 @@ interface Post {
     username: string;
     nickname: string;
   };
+  
 }
 
 interface CommentsModalProps {
   isOpen: boolean;
   onClose: () => void;
   post: Post;
+  onCommentAdded?: () => void;
 }
 
-export default function CommentsModal({ isOpen, onClose, post }: CommentsModalProps) {
+export default function CommentsModal({ isOpen, onClose, post, onCommentAdded }: CommentsModalProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -85,6 +87,11 @@ export default function CommentsModal({ isOpen, onClose, post }: CommentsModalPr
         const newCommentData = await response.json();
         setComments(prev => [newCommentData, ...prev]);
         setNewComment('');
+
+        // Notify parent component that a comment was added
+        if (onCommentAdded) {
+          onCommentAdded();
+        }
       } else {
         alert('Failed to post comment. Please try again.');
       }
@@ -201,11 +208,11 @@ export default function CommentsModal({ isOpen, onClose, post }: CommentsModalPr
                     placeholder="What are your thoughts?"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[#645DD7] focus:border-transparent transition-all duration-200 text-gray-900 font-medium"
                     rows={3}
-                    maxLength={1000}
+                    maxLength={500}
                   />
                   <div className="flex items-center justify-between mt-3">
                     <span className="text-xs text-gray-500">
-                      {newComment.length}/1000 characters
+                      {newComment.length}/500 characters
                     </span>
                     <button
                       type="submit"

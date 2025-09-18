@@ -38,7 +38,7 @@ export class PostsService {
     }
   }
 
-  async getPosts(category?: string) {
+  async getPosts(category?: string, userId?: string) {
     try {
       const posts = await this.prisma.post.findMany({
         where: category ? { category: category as any } : undefined,
@@ -53,7 +53,12 @@ export class PostsService {
           _count: {
             select: {
               comments: true,
-              votes: true,
+            },
+          },
+          votes: {
+            select: {
+              isUpvote: true,
+              userId: true,
             },
           },
         },
@@ -62,10 +67,89 @@ export class PostsService {
         },
       });
 
-      return posts;
+      // Calculate vote scores and user's vote for each post
+      const postsWithVoteData = posts.map(post => {
+        const upvotes = post.votes.filter(vote => vote.isUpvote).length;
+        const downvotes = post.votes.filter(vote => !vote.isUpvote).length;
+        const netVotes = upvotes - downvotes;
+
+        const userVote = userId
+          ? post.votes.find(vote => vote.userId === userId)?.isUpvote
+          : undefined;
+
+        return {
+          ...post,
+          _count: {
+            ...post._count,
+            votes: netVotes,
+          },
+          userVote,
+          votes: undefined, // Remove votes array from response
+        };
+      });
+
+      return postsWithVoteData;
     } catch (error) {
       console.error('Error fetching posts:', error);
       throw new InternalServerErrorException('Failed to fetch posts');
+    }
+  }
+
+  async getPostById(postId: string, userId?: string) {
+    try {
+      const post = await this.prisma.post.findUniqueOrThrow({
+        where: { id: postId },
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              nickname: true,
+            },
+          },
+          votes: {
+            select: {
+              isUpvote: true,
+              userId: true,
+            },
+          },
+          comments: {
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  username: true,
+                  nickname: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
+        },
+      });
+
+      const upvotes = post.votes.filter(vote => vote.isUpvote).length;
+      const downvotes = post.votes.filter(vote => !vote.isUpvote).length;
+      const netVotes = upvotes - downvotes;
+
+      const userVote = userId
+        ? post.votes.find(vote => vote.userId === userId)?.isUpvote
+        : undefined;
+
+      return {
+        ...post,
+        netVotes,
+        userVote,
+        votes: undefined, // Remove votes array from response
+      };
+    } catch (error) {
+      if (error.code === 'P2025') { // Prisma's code for not found on findUniqueOrThrow
+        throw new NotFoundException('Post not found');
+      }
+      console.error('Error fetching post by ID:', error);
+      throw new InternalServerErrorException('Failed to fetch post');
     }
   }
 
@@ -175,6 +259,89 @@ export class PostsService {
       }
       console.error('Error fetching comments:', error);
       throw new InternalServerErrorException('Failed to fetch comments');
+    }
+  }
+
+  async votePost(postId: string, userId: string, isUpvote: boolean) {
+    try {
+      console.log('Vote request:', { postId, userId, isUpvote });
+
+      // First, check if the post exists
+      const post = await this.prisma.post.findUnique({
+        where: { id: postId }
+      });
+
+      if (!post) {
+        throw new NotFoundException('Post not found');
+      }
+
+      // Check if user already voted on this post
+      const existingVote = await this.prisma.vote.findUnique({
+        where: {
+          userId_postId: {
+            userId,
+            postId
+          }
+        }
+      });
+
+      if (existingVote) {
+        if (existingVote.isUpvote === isUpvote) {
+          // User is clicking the same vote button - remove vote
+          await this.prisma.vote.delete({
+            where: { id: existingVote.id }
+          });
+        } else {
+          // User is changing their vote
+          await this.prisma.vote.update({
+            where: { id: existingVote.id },
+            data: { isUpvote }
+          });
+        }
+      } else {
+        // Create new vote
+        await this.prisma.vote.create({
+          data: {
+            userId,
+            postId,
+            isUpvote
+          }
+        });
+      }
+
+      // Get updated vote counts
+      const upvotes = await this.prisma.vote.count({
+        where: { postId, isUpvote: true }
+      });
+
+      const downvotes = await this.prisma.vote.count({
+        where: { postId, isUpvote: false }
+      });
+
+      const netVotes = upvotes - downvotes;
+
+      // Get the updated user vote after the operation
+      const updatedVote = await this.prisma.vote.findUnique({
+        where: {
+          userId_postId: {
+            userId,
+            postId
+          }
+        }
+      });
+
+      return {
+        netVotes,
+        upvotes,
+        downvotes,
+        userVote: updatedVote?.isUpvote ?? null
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error('Error voting on post:', error);
+      throw new InternalServerErrorException('Failed to vote on post');
     }
   }
 
