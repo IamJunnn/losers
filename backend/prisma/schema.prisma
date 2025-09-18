@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  nickname    String
+  password    String
+  recoveryCode String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  posts       Post[]
+  comments    Comment[]
+  votes       Vote[]
+  reports     Report[]
+
+  @@map("users")
+}
+
+model Post {
+  id           String      @id @default(cuid())
+  title        String
+  category     Category
+  whatFailed   String?     // For General category, this can be null
+  lessonLearned String?    // For General category, this can be null
+  contents     String?     // For General category, main content goes here
+  authorId     String
+  isHidden     Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  author       User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments     Comment[]
+  votes        Vote[]
+  reports      Report[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  postId    String
+  authorId  String
+  isHidden  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes     Vote[]
+  reports   Report[]
+
+  @@map("comments")
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String?
+  commentId String?
+  isUpvote  Boolean
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  // Ensure user can only vote once per post/comment
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@map("votes")
+}
+
+model Report {
+  id        String     @id @default(cuid())
+  reason    String
+  postId    String?
+  commentId String?
+  reporterId String
+  status    ReportStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+
+  // Relations
+  post      Post?      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment   Comment?   @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  reporter  User       @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+enum Category {
+  GENERAL
+  COLLEGE
+  ENTREPRENEURS
+  PROFESSIONALS
+  LIFE
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+}
