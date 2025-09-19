@@ -24,13 +24,10 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Set global prefix for all routes
-  app.setGlobalPrefix('api');
-
-  // Add a simple health check for root route
-  app.getHttpAdapter().get('/', (req, res) => {
-    res.json({ message: 'Backend is running', status: 'ok', timestamp: new Date().toISOString() });
-  });
+  // Option 2: No global prefix - all routes available at root level
+  // Routes will be: /, /auth/*, /posts/* instead of /api/*, /api/auth/*, /api/posts/*
+  // Comment out the line below to use Option 1 with /api prefix:
+  // app.setGlobalPrefix('api');
 
   await app.listen(process.env.PORT ?? 3001);
 }
