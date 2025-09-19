@@ -96,7 +96,7 @@ export default function CreatePostModal({
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/posts', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

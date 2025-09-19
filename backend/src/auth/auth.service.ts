@@ -12,9 +12,24 @@ import { AuthResponse, JwtPayload } from './interfaces/auth.interface';
 
 @Injectable()
 export class AuthService {
-  private prisma = new PrismaClient();
+  private prisma: PrismaClient;
 
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) {
+    this.prisma = new PrismaClient({
+      log: ['query', 'info', 'warn', 'error'],
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
+      errorFormat: 'pretty',
+    });
+
+    // Connect immediately to check connection
+    this.prisma.$connect().catch((error) => {
+      console.error('Failed to connect to database:', error);
+    });
+  }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     const { username, nickname, password } = registerDto;
@@ -59,7 +74,8 @@ export class AuthService {
       if (error instanceof ConflictException) {
         throw error;
       }
-      throw new InternalServerErrorException('Failed to create user');
+      console.error('Registration error:', error);
+      throw new InternalServerErrorException(`Failed to create user: ${error.message}`);
     }
   }
 
@@ -94,7 +110,8 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new InternalServerErrorException('Failed to authenticate user');
+      console.error('Login error:', error);
+      throw new InternalServerErrorException(`Failed to authenticate user: ${error.message}`);
     }
   }
 
@@ -102,7 +119,8 @@ export class AuthService {
     try {
       return await this.prisma.user.count();
     } catch (error) {
-      throw new InternalServerErrorException('Failed to get user count');
+      console.error('User count error:', error);
+      throw new InternalServerErrorException(`Failed to get user count: ${error.message}`);
     }
   }
 

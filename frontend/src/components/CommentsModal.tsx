@@ -54,7 +54,7 @@ export default function CommentsModal({ isOpen, onClose, post, onCommentAdded }:
   const fetchComments = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:3001/api/posts/${post.id}/comments`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/comments`);
       if (response.ok) {
         const data = await response.json();
         setComments(data);
@@ -74,7 +74,7 @@ export default function CommentsModal({ isOpen, onClose, post, onCommentAdded }:
       setIsSubmitting(true);
       const token = localStorage.getItem('token') || Cookies.get('token');
 
-      const response = await fetch(`http://localhost:3001/api/posts/${post.id}/comments`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${post.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

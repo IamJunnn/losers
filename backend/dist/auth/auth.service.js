@@ -16,9 +16,21 @@ const client_1 = require("@prisma/client");
 const argon2 = require("argon2");
 let AuthService = class AuthService {
     jwtService;
-    prisma = new client_1.PrismaClient();
+    prisma;
     constructor(jwtService) {
         this.jwtService = jwtService;
+        this.prisma = new client_1.PrismaClient({
+            log: ['query', 'info', 'warn', 'error'],
+            datasources: {
+                db: {
+                    url: process.env.DATABASE_URL,
+                },
+            },
+            errorFormat: 'pretty',
+        });
+        this.prisma.$connect().catch((error) => {
+            console.error('Failed to connect to database:', error);
+        });
     }
     async register(registerDto) {
         const { username, nickname, password } = registerDto;
@@ -58,7 +70,8 @@ let AuthService = class AuthService {
             if (error instanceof common_1.ConflictException) {
                 throw error;
             }
-            throw new common_1.InternalServerErrorException('Failed to create user');
+            console.error('Registration error:', error);
+            throw new common_1.InternalServerErrorException(`Failed to create user: ${error.message}`);
         }
     }
     async login(username, password) {
@@ -88,7 +101,8 @@ let AuthService = class AuthService {
             if (error instanceof common_1.UnauthorizedException) {
                 throw error;
             }
-            throw new common_1.InternalServerErrorException('Failed to authenticate user');
+            console.error('Login error:', error);
+            throw new common_1.InternalServerErrorException(`Failed to authenticate user: ${error.message}`);
         }
     }
     async getUserCount() {
@@ -96,7 +110,8 @@ let AuthService = class AuthService {
             return await this.prisma.user.count();
         }
         catch (error) {
-            throw new common_1.InternalServerErrorException('Failed to get user count');
+            console.error('User count error:', error);
+            throw new common_1.InternalServerErrorException(`Failed to get user count: ${error.message}`);
         }
     }
     async onModuleDestroy() {

@@ -13,7 +13,14 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
-      "Bash(wmic process where:*)"
+      "Bash(wmic process where:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(vercel)",
+      "Bash(vercel:*)",
+      "Read(//c/Users/Owner/Desktop/project/**)",
+      "Bash(echo:*)",
+      "Bash(npx prisma:*)"
     ],
     "deny": [],
     "ask": []

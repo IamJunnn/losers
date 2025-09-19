@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,63 +8,55 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  username    String   @unique
-  nickname    String
-  password    String
+  id           String    @id @default(cuid())
+  username     String    @unique
+  nickname     String
+  password     String
   recoveryCode String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  posts       Post[]
-  comments    Comment[]
-  votes       Vote[]
-  reports     Report[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  comments     Comment[]
+  posts        Post[]
+  reports      Report[]
+  votes        Vote[]
 
   @@map("users")
 }
 
 model Post {
-  id           String      @id @default(cuid())
-  title        String
-  category     Category
-  whatFailed   String?     // For General category, this can be null
-  lessonLearned String?    // For General category, this can be null
-  contents     String?     // For General category, main content goes here
-  authorId     String
-  isHidden     Boolean     @default(false)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  // Relations
-  author       User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments     Comment[]
-  votes        Vote[]
-  reports      Report[]
+  id            String    @id @default(cuid())
+  title         String
+  category      Category
+  whatFailed    String?
+  lessonLearned String?
+  contents      String?
+  authorId      String
+  isHidden      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  comments      Comment[]
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reports       Report[]
+  votes         Vote[]
 
   @@map("posts")
 }
 
 model Comment {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   content   String
   postId    String
   authorId  String
-  isHidden  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // For nested comments
+  isHidden  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   parentId  String?
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   parent    Comment?  @relation("replies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[] @relation("replies")
-
-  // Relations
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  votes     Vote[]
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
   reports   Report[]
+  votes     Vote[]
 
   @@map("comments")
 }
@@ -79,31 +68,26 @@ model Vote {
   commentId String?
   isUpvote  Boolean
   createdAt DateTime @default(now())
-
-  // Relations
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Ensure user can only vote once per post/comment
   @@unique([userId, postId])
   @@unique([userId, commentId])
   @@map("votes")
 }
 
 model Report {
-  id        String     @id @default(cuid())
-  reason    String
-  postId    String?
-  commentId String?
+  id         String       @id @default(cuid())
+  reason     String
+  postId     String?
+  commentId  String?
   reporterId String
-  status    ReportStatus @default(PENDING)
-  createdAt DateTime   @default(now())
-
-  // Relations
-  post      Post?      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  comment   Comment?   @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  reporter  User       @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  status     ReportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+  comment    Comment?     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  post       Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporter   User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
 
   @@map("reports")
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AuthModal from '../components/AuthModal';
@@ -102,15 +102,15 @@ function CategoryButton({ category, isActive, onClick }: {
   );
 }
 
-export default function HomePage() {
+function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get('category') || 'GENERAL';
-  
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  
+
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCreatePostModal, setShowCreatePostModal] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
@@ -118,6 +118,7 @@ export default function HomePage() {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [votedPosts, setVotedPosts] = useState<Record<string, 'up' | 'down'>>({});
   const [theme, setTheme] = useState('light');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const categories = [
     { key: 'GENERAL', name: 'General', description: 'General failures and setbacks' },
@@ -133,8 +134,8 @@ export default function HomePage() {
     let userData = localStorage.getItem('user');
 
     if (!token) {
-      token = Cookies.get('token');
-      userData = Cookies.get('user');
+      token = Cookies.get('token') || null;
+      userData = Cookies.get('user') || null;
 
       if (token && userData) {
         localStorage.setItem('token', token);
@@ -161,7 +162,7 @@ export default function HomePage() {
       const url = `/api/posts?category=${currentCategory}`;
       const token = localStorage.getItem('token') || Cookies.get('token');
 
-      const headers: any = {
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
 
@@ -169,8 +170,9 @@ export default function HomePage() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`http://localhost:3001${url}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
         headers,
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -179,7 +181,7 @@ export default function HomePage() {
 
         // Set initial vote state from server data
         const initialVotes: Record<string, 'up' | 'down'> = {};
-        data.forEach((post: any) => {
+        data.forEach((post: { id: string; userVote?: boolean }) => {
           if (post.userVote !== undefined) {
             initialVotes[post.id] = post.userVote ? 'up' : 'down';
           }
@@ -236,12 +238,13 @@ export default function HomePage() {
       const token = localStorage.getItem('token') || Cookies.get('token');
       const isUpvote = direction === 'up';
 
-      const response = await fetch(`http://localhost:3001/api/posts/${postId}/vote`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${postId}/vote`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ isUpvote }),
       });
 
@@ -281,12 +284,13 @@ export default function HomePage() {
 
     try {
       const token = localStorage.getItem('token') || Cookies.get('token');
-      const response = await fetch(`http://localhost:3001/api/posts/${postId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/posts/${postId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -379,7 +383,40 @@ export default function HomePage() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
-            <div className="flex items-center space-x-4">
+            {/* Mobile Layout */}
+            <div className="flex items-center justify-between w-full sm:hidden">
+              {/* Left: Hamburger Menu */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+
+              {/* Center: Logo */}
+              <Link href="/" className="flex items-center">
+                <img
+                  src="/logo_main.png"
+                  alt="LosersSpace Logo"
+                  className="h-8 w-auto"
+                />
+              </Link>
+
+              {/* Right: Create Post Button (+ icon) */}
+              <button
+                onClick={handleCreatePost}
+                className="p-2 rounded-full bg-[#FF9E3D] hover:bg-[#FF8C1A] text-black transition-all duration-200"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden sm:flex items-center space-x-4">
               <Link href="/" className="flex items-center space-x-2 group">
                 <img
                   src="/2.png"
@@ -388,8 +425,8 @@ export default function HomePage() {
                 />
               </Link>
             </div>
-            
-            <div className="flex items-center space-x-3">
+
+            <div className="hidden sm:flex items-center space-x-3">
               <button
                 onClick={toggleTheme}
                 className={`p-2 rounded-full transition-all duration-200 ${
@@ -419,7 +456,7 @@ export default function HomePage() {
                   </button>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-700 font-medium">u/{user.username}</span>
-                    <button 
+                    <button
                       onClick={handleLogout}
                       className="text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100 transition-all duration-200"
                     >
@@ -448,9 +485,114 @@ export default function HomePage() {
         </div>
       </header>
 
+      {/* Mobile Menu Overlay */}
+      {showMobileMenu && (
+        <div className="fixed inset-0 z-50 sm:hidden">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowMobileMenu(false)}></div>
+          <div className="fixed top-0 left-0 w-80 h-full bg-white shadow-lg">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-6">
+                <img
+                  src="/logo_main.png"
+                  alt="LosersSpace Logo"
+                  className="h-8 w-auto"
+                />
+                <button
+                  onClick={() => setShowMobileMenu(false)}
+                  className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Categories in Mobile Menu */}
+              <div className="space-y-2 mb-6">
+                {categories.map((category) => (
+                  <button
+                    key={category.key}
+                    onClick={() => {
+                      handleCategoryChange(category.key);
+                      setShowMobileMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-3 rounded-lg text-sm transition-all duration-200 ${
+                      currentCategory === category.key
+                        ? 'bg-gradient-to-r from-[#FF9E3D]/10 to-[#FF9E3D]/5 border-r-3 border-[#FF9E3D] font-medium'
+                        : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                  >
+                    <div className={`font-medium ${currentCategory === category.key ? 'text-[#FF9E3D]' : 'text-gray-900'}`}>
+                      l/{category.name.toLowerCase()}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {category.description}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* User Actions in Mobile Menu */}
+              {user ? (
+                <div className="border-t pt-4 space-y-3">
+                  <div className="text-sm text-gray-700 font-medium">u/{user.username}</div>
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center space-x-2 w-full text-left px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    {theme === 'light' ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9 9 0 008.354-5.646z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                      </svg>
+                    )}
+                    <span>Toggle theme</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="border-t pt-4 space-y-3">
+                  <button
+                    onClick={() => {
+                      setAuthMode('signin');
+                      setShowAuthModal(true);
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Log In
+                  </button>
+                  <button
+                    onClick={() => {
+                      setAuthMode('signup');
+                      setShowAuthModal(true);
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full bg-[#FF9E3D] hover:bg-[#FF8C1A] text-black text-center py-2 rounded-md text-sm font-medium"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto flex">
-        {/* Sidebar */}
-        <div className="w-80 bg-white border-r border-gray-200 min-h-screen shadow-sm">
+        {/* Sidebar - Hidden on mobile */}
+        <div className="hidden sm:block w-80 bg-white border-r border-gray-200 min-h-screen shadow-sm">
           <div className="p-4">
             <div className="space-y-2">
               {categories.map((category) => (
@@ -467,8 +609,8 @@ export default function HomePage() {
 
         {/* Main Content */}
         <div className="flex-1 max-w-4xl">
-          {/* Category Header */}
-          <div className="bg-white border-b border-gray-200 p-6 shadow-sm">
+          {/* Category Header - Hidden on mobile */}
+          <div className="hidden sm:block bg-white border-b border-gray-200 p-6 shadow-sm">
             <h1 className="text-2xl font-bold text-gray-900">l/{currentCategoryInfo.name.toLowerCase()}</h1>
             <p className="text-gray-600 text-sm mt-1">{currentCategoryInfo.description}</p>
             <div className="flex items-center mt-4 space-x-4 text-sm text-gray-500">
@@ -606,8 +748,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="w-80 p-6">
+        {/* Right Sidebar - Hidden on mobile */}
+        <div className="hidden lg:block w-80 p-6">
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <h3 className="font-semibold text-gray-900 mb-3">About l/{currentCategoryInfo.name.toLowerCase()}</h3>
             <p className="text-sm text-gray-600 mb-6 leading-relaxed">{currentCategoryInfo.description}</p>
@@ -663,5 +805,13 @@ export default function HomePage() {
         />
       )}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
   );
 }

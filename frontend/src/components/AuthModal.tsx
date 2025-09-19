@@ -7,7 +7,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: 'signin' | 'signup';
-  onAuthSuccess: (user: any) => void;
+  onAuthSuccess: (user: { id: string; username: string; nickname: string }) => void;
 }
 
 export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSuccess }: AuthModalProps) {
@@ -57,11 +57,12 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
             password: formData.password,
           };
 
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
@@ -190,8 +191,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin', onA
               disabled={isLoading}
               className="w-full text-black py-2 px-4 rounded-md font-medium transition-colors disabled:opacity-50"
               style={{backgroundColor: '#FF9E3D'}}
-              onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = '#FF8C1A')}
-              onMouseLeave={(e) => !isLoading && (e.target.style.backgroundColor = '#FF9E3D')}
+              onMouseEnter={(e) => !isLoading && ((e.target as HTMLButtonElement).style.backgroundColor = '#FF8C1A')}
+              onMouseLeave={(e) => !isLoading && ((e.target as HTMLButtonElement).style.backgroundColor = '#FF9E3D')}
             >
               {isLoading ? 'Please wait...' : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
             </button>
