@@ -6,11 +6,26 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend - Very permissive for testing
+  // Enable CORS for frontend
+  const allowedOrigins = [
+    'https://losers.space',
+    // Allow Vercel preview URLs
+    /\.vercel\.app$/,
+    // Allow localhost for development
+    'http://localhost:3000',
+    'http://localhost:3001',
+  ];
+
   app.enableCors({
-    origin: true, // Allow all origins for now
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow server-to-server / curl
+      const ok = allowedOrigins.some(o =>
+        o instanceof RegExp ? o.test(origin) : o === origin
+      );
+      return ok ? callback(null, true) : callback(new Error('CORS blocked'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
 
